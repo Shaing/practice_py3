@@ -5,12 +5,14 @@ from os import walk
 from os.path import join
 import sqlite3
 
-queryPath = "../SATATEST/PN"
+queryPath = "Y:\\SATATEST\\PN"
 dbName = 'st_dt.db'
 lastRt = ''
 pnl = [] # pn list
 fl = [] # file list
 dtl = [] # duration time list
+wototcnt = 0
+
 conn = sqlite3.connect(dbName)
 print ('Opened database successfully')
 c = conn.cursor()
@@ -31,7 +33,9 @@ for pn in pnl:
 	dtl.clear()
 	if '.' in pn:
 		continue
-	goal = queryPath + '/' + pn
+	elif 'SN' in pn:
+		continue
+	goal = queryPath + '\\' + pn
 	print("query pn = ", goal)
 	for root, dirs, files in walk(goal):
 		# print(dirs)
@@ -42,11 +46,12 @@ for pn in pnl:
 				lastRt = root
 				fullpath = join(root, f)
 				# print(fullpath)
-				r, satatet, pnf, pn, wo, fileLog = fullpath.split('/')
+				r, satatet, pnf, pn, wo, fileLog = fullpath.split('\\')
 				# print(r, satatet, pnf, pn, wo, fileLog)
 				if '2' in wo[0]:
-					print("2 ", wo)
+					# print("2 ", wo)
 					continue
+				wototcnt = wototcnt + 1
 				file = open(fullpath, 'r')
 				fl = file.readlines()    
 				file.close()
@@ -62,21 +67,25 @@ for pn in pnl:
 						sec = hms2sec(st)
 						# print(sec)
 						dtl.append(sec)
+			else:
+				continue
 	try:
 		M = max(dtl)
 		m = min(dtl)
 		a = round((sum(dtl)/len(dtl)), 2)
-		print("max = ", M)				
-		print("min = ", m)					
-		print("avg = ", a)
+		# print("max = ", M)				
+		# print("min = ", m)					
+		# print("avg = ", a)
 	except:
 		print("dlt is empty!")
+		continue
 
 	try:
 		c.execute("INSERT INTO log('PN', 'MAX', 'MIN', 'AVG') VALUES(?, ?, ?, ?)", (pn, M, m, a))
 		conn.commit()
 	except:
 		print("Insert DB error!")
+	print(wototcnt)
 conn.close()
 
 
