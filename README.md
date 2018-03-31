@@ -1,0 +1,9 @@
+# practice_py3
+- os
+- path/dirs/files
+- sqlite3
+- list
+- if
+- for
+- try/execpt
+- file
